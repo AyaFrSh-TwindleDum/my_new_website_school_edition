@@ -2,6 +2,7 @@ import streamlit as st
 
 # Define your color
 bg_color = "#c2c395"
+title_color = "#DDBAAE"
 
 # Inject CSS with markdown
 st.markdown(
@@ -9,6 +10,7 @@ st.markdown(
     <style>
     .stApp {{
         background-color: {bg_color};
+        title-color: {title_color};
     }}
     </style>
     """,
