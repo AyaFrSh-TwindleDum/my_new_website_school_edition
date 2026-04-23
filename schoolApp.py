@@ -57,7 +57,7 @@ with st.sidebar:
     with col_start:
         start_clicked = st.button("▶️ Start")
     with col_stop:
-        stop_clicked = st.button("⏹️ Stop") # Clicking this reruns the app and stops the loop
+        stop_clicked = st.button("⏹️ Stop") # Reruns the app to kill the loop
 
     if start_clicked:
         if "25m" in timer_choice:
@@ -98,7 +98,8 @@ roasts = [
     "Your to-do list looks like a 'maybe-someday' list. Get moving!",
     "Sloth mode detected. Initiating virtual coffee splash... ☕",
     "If you spent as much time working as you did changing colors, you'd be done!",
-    "Is that a task list or a bedtime story? Wake up!"
+    "Is that a task list or a bedtime story? Wake up!",
+    "Your ambition says 'Robot', but your pace says 'Sloth'."
 ]
 if st.button("Roast My Productivity"):
     st.toast(random.choice(roasts), icon="🔥")
@@ -140,17 +141,10 @@ if st.button("Add Task"):
 
 st.divider()
 
-# 8. FEATURE: Energy Level Graph
-if st.session_state.task_list:
-    st.subheader("📊 Your Energy Schedule")
-    m_map = {"Sloth": 1, "Human": 5, "Robot": 10}
-    chart_data = {t['name']: m_map[t['motivation']] for t in st.session_state.task_list}
-    st.bar_chart(chart_data, color="#4C3D19")
-
-# 9. Task Display List
-st.subheader("Priority Queue")
+# 8. Task Display List
+st.subheader("Your Priority List")
 if not st.session_state.task_list:
-    st.info("No tasks left!")
+    st.info("No tasks left! Time for a break?")
 else:
     for i, task in enumerate(st.session_state.task_list):
         if task['priority'] == "High":
@@ -177,3 +171,12 @@ else:
             st.session_state.task_list.pop(i)
             st.session_state.done_count += 1
             st.rerun()
+
+st.divider()
+
+# 9. FEATURE: Energy Level Graph (MOVED TO BOTTOM)
+if st.session_state.task_list:
+    st.subheader("📊 Your Effort Summary")
+    m_map = {"Sloth": 1, "Human": 5, "Robot": 10}
+    chart_data = {t['name']: m_map[t['motivation']] for t in st.session_state.task_list}
+    st.bar_chart(chart_data, color="#4C3D19")
