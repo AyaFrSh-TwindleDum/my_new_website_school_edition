@@ -32,7 +32,6 @@ st.markdown(
 # 3. Sidebar (Photo and Stats)
 with st.sidebar:
     st.header("⚙️ Settings")
-    # THE RESTORED PHOTO
     st.image("https://cdn-icons-png.flaticon.com/512/4345/4345573.png", width=100)
     
     st.write("---")
@@ -74,28 +73,4 @@ if st.button("Add Task"):
         priority_map = {"High": 1, "Medium": 2, "Low": 3}
         st.session_state.task_list.sort(key=lambda x: priority_map[x["priority"]])
         
-        st.success(f"Task '{name}' added!")
-    else:
-        st.error("Please enter a task name first!")
-
-st.divider()
-
-# 7. Display List
-st.subheader("Priority Queue")
-
-if not st.session_state.task_list:
-    st.info("The list is empty. Time for a break?")
-else:
-    for task in st.session_state.task_list:
-        # Dynamic border colors based on urgency
-        if task['priority'] == "High":
-            border_color = "#D9534F" # Red
-        elif task['priority'] == "Medium":
-            border_color = "#F0AD4E" # Orange
-        else:
-            border_color = title_color # Original Brown
-            
-        st.markdown(f"""
-            <div class="task-card" style="border-left-color: {border_color};">
-                <h4 style="margin:0;">{task['name']}</h4>
-                <p style="margin:5px 0 0
+        st.success(f"Task '{name}' added
