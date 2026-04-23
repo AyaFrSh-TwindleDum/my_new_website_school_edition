@@ -10,9 +10,13 @@ st.markdown(
     <style>
     .stApp {{
         background-color: {bg_color};
-        title-color: {title_color};
+    
+    }}
+    h1, h2, h3 {{
+        color: {title_color} !important;
     }}
     </style>
+   
     """,
     unsafe_allow_html=True
 )
