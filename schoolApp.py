@@ -23,6 +23,6 @@ st.markdown(
 st.header("To Do List")
 name = st.text_input("name of task")
 prioraty= st.text_input("prioraty of task")
-time = st.text_input("time of task"
+time = st.text_input("time of task")
 st.write("my superb website")
-                    )
+                    
