@@ -1,84 +1,81 @@
 import streamlit as st
 
-# 1. Page Config (Adds a title and icon to the browser tab)
-st.set_page_config(page_title="Superb To-Do", page_icon="📝")
+# 1. INITIALIZE MEMORY (Session State)
+# This code only runs once when the app starts.
+if 'task_list' not in st.session_state:
+    st.session_state.task_list = []
 
-# Define your colors
+# Define colors
 bg_color = "#c2c395"
 title_color = "#4C3D19"
-card_color = "#fdfae1" # A light cream for the task card
 
-# 2. Enhanced CSS
+# 2. CSS STYLING
 st.markdown(
     f"""
     <style>
-    /* App Background */
-    .stApp {{
-        background-color: {bg_color};
-    }}
-    
-    /* Header Styles */
-    h1, h2, h3 {{
-        color: {title_color} !important;
-        font-family: 'Helvetica', sans-serif;
-    }}
-
-    /* Custom Task Card Styling */
+    .stApp {{ background-color: {bg_color}; }}
+    h1, h2, h3 {{ color: {title_color} !important; }}
     .task-card {{
-        background-color: {card_color};
-        padding: 20px;
-        border-radius: 15px;
-        border-left: 10px solid {title_color};
-        color: #333333;
-        box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+        background-color: #fdfae1;
+        padding: 15px;
+        border-radius: 10px;
+        border-left: 6px solid {title_color};
+        margin-bottom: 10px;
+        color: #333;
     }}
     </style>
     """,
     unsafe_allow_html=True
 )
 
-# 3. Sidebar Decoration
+# 3. SIDEBAR (Counter)
 with st.sidebar:
-    st.title("Settings")
-    st.image("https://cdn-icons-png.flaticon.com/512/4345/4345573.png", width=100)
-    st.write("---")
-    motivation = st.select_slider("Current Motivation Level", options=["Sloth", "Human", "Robot"])
+    st.header("📊 Stats")
+    # Show how many tasks are in our 'memory'
+    st.metric("Total Tasks", len(st.session_state.task_list))
+    
+    if st.button("🗑️ Clear All Tasks"):
+        st.session_state.task_list = []
+        st.rerun()
 
-# 4. Main App Layout
-st.header("📝 To Do List")
-st.write("My superb website will now evaluate your laziness.")
+# 4. INPUT SECTION
+st.header("To Do List")
+st.write("Add your tasks below. I'll remember them (until you refresh the page).")
 
-# Using Columns to make the layout look cleaner
 col1, col2 = st.columns(2)
-
 with col1:
-    name = st.text_input("Name of task", placeholder="e.g. Save the world")
+    name = st.text_input("Name of task", key="name_input")
     time_val = st.time_input("Time of task")
-
 with col2:
-    priority = st.select_slider("Priority of task", options=["Low", "Medium", "High"])
+    priority = st.select_slider("Priority", options=["Low", "Medium", "High"])
+
+# 5. THE BUTTON LOGIC (Adding to memory)
+if st.button("Add Task"):
+    if name:
+        # Create a dictionary for the new task
+        new_entry = {
+            "name": name,
+            "priority": priority,
+            "time": time_val.strftime('%H:%M')
+        }
+        # Append the task to our session_state list
+        st.session_state.task_list.append(new_entry)
+    else:
+        st.error("Please enter a task name first!")
 
 st.divider()
 
-# 5. The Button & Results Logic
-if st.button("Submit Task"):
-    if name: 
-        # Using HTML in Markdown to apply the 'task-card' class defined above
+# 6. DISPLAY SECTION (Showing all tasks)
+st.subheader("Current Tasks")
+
+if not st.session_state.task_list:
+    st.info("No tasks added yet. Get to work!")
+else:
+    # We loop through the list in reverse so the newest task is at the top
+    for task in reversed(st.session_state.task_list):
         st.markdown(f"""
             <div class="task-card">
-                <h3>Task: {name}</h3>
-                <p><b>Scheduled for:</b> {time_val.strftime('%H:%M')}<br>
-                <b>Urgency:</b> {priority}<br>
-                <b>Effort Mode:</b> {motivation}</p>
+                <strong>{task['name']}</strong><br>
+                <small>⏰ {task['time']} | 🚩 {task['priority']} Priority</small>
             </div>
         """, unsafe_allow_html=True)
-        
-        # Logic-based feedback
-        if priority == "Low" and motivation == "Sloth":
-            st.warning("Low priority and Sloth mode? This task is never happening, is it?")
-        elif priority == "High":
-            st.success("High priority! Let's get to work.")
-        else:
-            st.info("You've got this!")
-    else:
-        st.error("Please enter a task name first!")
