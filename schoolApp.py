@@ -51,7 +51,6 @@ with col1:
 
 with col2:
     priority = st.select_slider("Priority", options=["Low", "Medium", "High"])
-    # Adding the motivation bar back here!
     motivation = st.select_slider("Motivation Level", options=["Sloth", "Human", "Robot"])
 
 # 6. Add Task Button
@@ -67,12 +66,26 @@ if st.button("Add Task"):
         st.session_state.task_list.append(new_task)
         st.success(f"Task '{name}' added!")
     else:
-        st.error("Please enter a task name!")
+        st.error("Please enter a task name first!")
 
 st.divider()
 
 # 7. Display All Tasks
 st.subheader("Your Task List")
 
+# FIXED: Check the strings here
 if not st.session_state.task_list:
-    st.info("The list is empty. Are
+    st.info("The list is empty. Are you being a Sloth?")
+else:
+    # Displaying tasks newest to oldest
+    for task in reversed(st.session_state.task_list):
+        st.markdown(f"""
+            <div class="task-card">
+                <h4 style="margin:0;">{task['name']}</h4>
+                <p style="margin:5px 0 0 0;">
+                    ⏰ <b>Time:</b> {task['time']} | 
+                    🚩 <b>Priority:</b> {task['priority']} | 
+                    ⚡ <b>Mode:</b> {task['motivation']}
+                </p>
+            </div>
+        """, unsafe_allow_html=True)
