@@ -1,7 +1,6 @@
 import streamlit as st
 
-# 1. PAGE CONFIG - This changes the name of the browser tab!
-# It MUST be the first Streamlit command.
+# 1. PAGE CONFIG - Sets the browser tab name and icon
 st.set_page_config(
     page_title="School Task Manager", 
     page_icon="📝", 
@@ -54,8 +53,9 @@ with st.sidebar:
         st.session_state.done_count = 0
         st.rerun()
 
-# 5. Main App
+# 5. Main App Header
 st.header("📝 My School Task Manager")
+st.write("My superb website will now evaluate your laziness.")
 
 # 6. Input Section
 col1, col2 = st.columns(2)
@@ -69,9 +69,10 @@ with col2:
     priority = st.select_slider("Priority", options=["Low", "Medium", "High"])
     motivation = st.select_slider("Motivation Level", options=["Sloth", "Human", "Robot"])
 
-# 7. Logic to Add and SORT Task
+# 7. Logic to Add, SORT, and FEEDBACK
 if st.button("Add Task"):
     if name:
+        # Create Task Object
         new_task = {
             "name": name,
             "priority": priority,
@@ -81,11 +82,18 @@ if st.button("Add Task"):
         }
         st.session_state.task_list.append(new_task)
         
-        # Sort by priority
+        # Sort by priority: High (1), Medium (2), Low (3)
         priority_map = {"High": 1, "Medium": 2, "Low": 3}
         st.session_state.task_list.sort(key=lambda x: priority_map[x["priority"]])
         
-        st.success(f"Task '{name}' added successfully!")
+        # --- YOUR LOGIC-BASED FEEDBACK ---
+        if priority == "Low" and motivation == "Sloth":
+            st.warning("Low priority and Sloth mode? This task is never happening, is it?")
+        elif priority == "High":
+            st.success("High priority! Let's get to work.")
+        else:
+            st.info("You've got this!")
+            
     else:
         st.error("Please enter a task name first!")
 
@@ -98,6 +106,7 @@ if not st.session_state.task_list:
     st.info("No tasks left! Time for a break?")
 else:
     for i, task in enumerate(st.session_state.task_list):
+        # Pick border color based on urgency
         if task['priority'] == "High":
             b_color = "#D9534F"
         elif task['priority'] == "Medium":
@@ -105,6 +114,7 @@ else:
         else:
             b_color = title_color
             
+        # Draw the card
         st.markdown(
             f"""
             <div class="task-card" style="border-left-color: {b_color};">
@@ -119,7 +129,7 @@ else:
             unsafe_allow_html=True
         )
         
-        # Button to finish task
+        # Finish button
         if st.button(f"Mark Done: {task['name']}", key=f"done_{i}"):
             st.session_state.task_list.pop(i)
             st.session_state.done_count += 1
