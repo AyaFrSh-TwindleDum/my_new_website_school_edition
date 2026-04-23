@@ -1,8 +1,8 @@
 import streamlit as st
 
 # Define your color
-bg_color = "#DDBAAE"
-title_color = "#c2c395"
+bg_color = "#c2c395"
+title_color = "#4C3D19"
 
 # Inject CSS with markdown
 st.markdown(
