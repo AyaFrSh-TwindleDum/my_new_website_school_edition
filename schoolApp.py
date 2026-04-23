@@ -1,81 +1,78 @@
 import streamlit as st
 
-# 1. INITIALIZE MEMORY (Session State)
-# This code only runs once when the app starts.
+# 1. Initialize Memory (Session State)
 if 'task_list' not in st.session_state:
     st.session_state.task_list = []
 
 # Define colors
 bg_color = "#c2c395"
 title_color = "#4C3D19"
+card_color = "#fdfae1"
 
-# 2. CSS STYLING
+# 2. CSS Styling
 st.markdown(
     f"""
     <style>
     .stApp {{ background-color: {bg_color}; }}
     h1, h2, h3 {{ color: {title_color} !important; }}
     .task-card {{
-        background-color: #fdfae1;
+        background-color: {card_color};
         padding: 15px;
         border-radius: 10px;
-        border-left: 6px solid {title_color};
-        margin-bottom: 10px;
+        border-left: 8px solid {title_color};
+        margin-bottom: 15px;
         color: #333;
+        box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
     }}
     </style>
     """,
     unsafe_allow_html=True
 )
 
-# 3. SIDEBAR (Counter)
+# 3. Sidebar Stats
 with st.sidebar:
-    st.header("📊 Stats")
-    # Show how many tasks are in our 'memory'
-    st.metric("Total Tasks", len(st.session_state.task_list))
-    
+    st.header("📊 Task Stats")
+    st.metric("Tasks to do", len(st.session_state.task_list))
+    st.write("---")
     if st.button("🗑️ Clear All Tasks"):
         st.session_state.task_list = []
         st.rerun()
 
-# 4. INPUT SECTION
-st.header("To Do List")
-st.write("Add your tasks below. I'll remember them (until you refresh the page).")
+# 4. Main Title
+st.header("📝 My Superb To-Do List")
+st.write("Evaluate your laziness levels below.")
 
+# 5. Input Section (Columns for layout)
 col1, col2 = st.columns(2)
+
 with col1:
-    name = st.text_input("Name of task", key="name_input")
+    name = st.text_input("Name of task", placeholder="e.g. Conquer the world")
     time_val = st.time_input("Time of task")
+
 with col2:
     priority = st.select_slider("Priority", options=["Low", "Medium", "High"])
+    # Adding the motivation bar back here!
+    motivation = st.select_slider("Motivation Level", options=["Sloth", "Human", "Robot"])
 
-# 5. THE BUTTON LOGIC (Adding to memory)
+# 6. Add Task Button
 if st.button("Add Task"):
     if name:
-        # Create a dictionary for the new task
-        new_entry = {
+        # Save task data + motivation level to memory
+        new_task = {
             "name": name,
             "priority": priority,
-            "time": time_val.strftime('%H:%M')
+            "time": time_val.strftime('%H:%M'),
+            "motivation": motivation
         }
-        # Append the task to our session_state list
-        st.session_state.task_list.append(new_entry)
+        st.session_state.task_list.append(new_task)
+        st.success(f"Task '{name}' added!")
     else:
-        st.error("Please enter a task name first!")
+        st.error("Please enter a task name!")
 
 st.divider()
 
-# 6. DISPLAY SECTION (Showing all tasks)
-st.subheader("Current Tasks")
+# 7. Display All Tasks
+st.subheader("Your Task List")
 
 if not st.session_state.task_list:
-    st.info("No tasks added yet. Get to work!")
-else:
-    # We loop through the list in reverse so the newest task is at the top
-    for task in reversed(st.session_state.task_list):
-        st.markdown(f"""
-            <div class="task-card">
-                <strong>{task['name']}</strong><br>
-                <small>⏰ {task['time']} | 🚩 {task['priority']} Priority</small>
-            </div>
-        """, unsafe_allow_html=True)
+    st.info("The list is empty. Are
