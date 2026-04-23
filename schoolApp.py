@@ -53,32 +53,18 @@ with st.sidebar:
     timer_choice = st.radio("Focus Mode:", ["Study (25m)", "Break (5m)", "Quick Blast (10s)"])
     
     col_start, col_stop = st.columns(2)
-    
-    with col_start:
-        start_clicked = st.button("▶️ Start")
-    with col_stop:
-        stop_clicked = st.button("⏹️ Stop") # Reruns the app to kill the loop
+    with col_start: start_clicked = st.button("▶️ Start")
+    with col_stop: stop_clicked = st.button("⏹️ Stop")
 
     if start_clicked:
-        if "25m" in timer_choice:
-            duration_seconds = 25 * 60
-        elif "5m" in timer_choice:
-            duration_seconds = 5 * 60
-        else:
-            duration_seconds = 10
-        
+        duration_seconds = 25*60 if "25m" in timer_choice else 5*60 if "5m" in timer_choice else 10
         progress_bar = st.progress(0)
         countdown_text = st.empty()
-        
         for remaining in range(duration_seconds, -1, -1):
             m, s = divmod(remaining, 60)
             countdown_text.markdown(f"### ⏳ {m:02d}:{s:02d}")
-            
-            progress_pct = (duration_seconds - remaining) / duration_seconds
-            progress_bar.progress(progress_pct)
-            
+            progress_bar.progress((duration_seconds - remaining) / duration_seconds)
             time.sleep(1) 
-            
         st.balloons()
         st.success("Time's up!")
 
@@ -91,18 +77,41 @@ with st.sidebar:
         st.session_state.done_count = 0
         st.rerun()
 
-# 5. Main Header & Roast Feature
+# 5. Main Header & THE EXPANDED ROAST FEATURE
 st.header("📝 My School Task Manager")
 
-roasts = [
-    "Your to-do list looks like a 'maybe-someday' list. Get moving!",
-    "Sloth mode detected. Initiating virtual coffee splash... ☕",
-    "If you spent as much time working as you did changing colors, you'd be done!",
-    "Is that a task list or a bedtime story? Wake up!",
-    "Your ambition says 'Robot', but your pace says 'Sloth'."
-]
-if st.button("Roast My Productivity"):
-    st.toast(random.choice(roasts), icon="🔥")
+def get_roast():
+    num_tasks = len(st.session_state.task_list)
+    
+    # Roasts based on how many tasks you have
+    if num_tasks == 0:
+        return random.choice([
+            "Your list is empty. Even the Sloths are impressed by your lack of ambition.",
+            "Zero tasks? Must be nice to be a billionaire. Oh wait, you're just procrastinating.",
+            "Your productivity is currently at 0%. Loading 'Real Life'... error not found."
+        ])
+    elif num_tasks > 5:
+        return random.choice([
+            f"{num_tasks} tasks?! You don't need an app, you need a miracle.",
+            "You're collecting tasks like they're Pokémon. Start fighting them!",
+            "Your to-do list is longer than the 'Terms and Conditions' no one reads."
+        ])
+    else:
+        return random.choice([
+            "If you spent as much time working as you did clicking this button, you'd be CEO by now.",
+            "Sloth mode detected. Initiating virtual coffee splash... ☕",
+            "A journey of a thousand miles begins with closing this tab and starting your essay.",
+            "Is that a task list or a bedtime story? Wake up!",
+            "Your ambition says 'Robot', but your pace says 'Glacial Sloth'.",
+            "Stop rearranging the pixels and start doing the work.",
+            "I've seen dial-up internet with more momentum than you.",
+            "Somewhere out there, a tree is working hard to produce the oxygen you're wasting.",
+            "Your future self is currently face-palming because of you.",
+            "Focus is a muscle. Yours is currently in a deep coma."
+        ])
+
+if st.button("🔥 Roast My Productivity"):
+    st.toast(get_roast(), icon="🔥")
 
 # 6. Input Section
 col1, col2 = st.columns(2)
@@ -115,27 +124,17 @@ with col2:
     priority = st.select_slider("Priority", options=["Low", "Medium", "High"])
     motivation = st.select_slider("Motivation Level", options=["Sloth", "Human", "Robot"])
 
-# 7. Logic to Add, Sort, and Feedback
+# 7. Add Task Logic
 if st.button("Add Task"):
     if name:
-        new_task = {
-            "name": name,
-            "priority": priority,
-            "start": start_time,
-            "end": end_time,
-            "motivation": motivation
-        }
+        new_task = {"name": name, "priority": priority, "start": start_time, "end": end_time, "motivation": motivation}
         st.session_state.task_list.append(new_task)
-        
         p_map = {"High": 1, "Medium": 2, "Low": 3}
         st.session_state.task_list.sort(key=lambda x: p_map[x["priority"]])
         
-        if priority == "Low" and motivation == "Sloth":
-            st.warning("Low priority and Sloth mode? This task is never happening, is it?")
-        elif priority == "High":
-            st.success("High priority! Let's get to work.")
-        else:
-            st.info("You've got this!")
+        # Immediate feedback toast
+        if priority == "High": st.success("Added! Now go do it before you change your mind.")
+        else: st.info("Task added. Try not to ignore it for 3 days.")
     else:
         st.error("Please enter a task name!")
 
@@ -144,18 +143,11 @@ st.divider()
 # 8. Task Display List
 st.subheader("Your Priority List")
 if not st.session_state.task_list:
-    st.info("No tasks left! Time for a break?")
+    st.info("No tasks left! Go outside and see the sun (it's the big yellow thing).")
 else:
     for i, task in enumerate(st.session_state.task_list):
-        if task['priority'] == "High":
-            b_col = "#D9534F" 
-        elif task['priority'] == "Medium":
-            b_col = "#F0AD4E" 
-        else:
-            b_col = title_color 
-            
-        st.markdown(
-            f"""
+        b_col = "#D9534F" if task['priority'] == "High" else "#F0AD4E" if task['priority'] == "Medium" else title_color 
+        st.markdown(f"""
             <div class="task-card" style="border-left-color: {b_col};">
                 <h4 style="margin:0; color: {title_color};">{task['name']}</h4>
                 <p style="margin:5px 0 0 0;">
@@ -163,10 +155,7 @@ else:
                     🚩 <b>{task['priority']}</b> | ⚡ <b>{task['motivation']}</b>
                 </p>
             </div>
-            """, 
-            unsafe_allow_html=True
-        )
-        
+            """, unsafe_allow_html=True)
         if st.button(f"Mark Done: {task['name']}", key=f"done_{i}"):
             st.session_state.task_list.pop(i)
             st.session_state.done_count += 1
@@ -174,7 +163,7 @@ else:
 
 st.divider()
 
-# 9. FEATURE: Energy Level Graph (MOVED TO BOTTOM)
+# 9. Energy Level Graph
 if st.session_state.task_list:
     st.subheader("📊 Your Effort Summary")
     m_map = {"Sloth": 1, "Human": 5, "Robot": 10}
