@@ -1,15 +1,15 @@
 import streamlit as st
 
-# 1. Initialize Memory (Session State)
+# 1. Initialize Memory
 if 'task_list' not in st.session_state:
     st.session_state.task_list = []
 
-# Define colors
+# Colors
 bg_color = "#c2c395"
 title_color = "#4C3D19"
 card_color = "#fdfae1"
 
-# 2. CSS Styling
+# 2. CSS
 st.markdown(
     f"""
     <style>
@@ -29,38 +29,42 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# 3. Sidebar Stats
+# 3. Sidebar
 with st.sidebar:
     st.header("📊 Task Stats")
     st.metric("Tasks to do", len(st.session_state.task_list))
-    st.write("---")
     if st.button("🗑️ Clear All Tasks"):
         st.session_state.task_list = []
         st.rerun()
 
-# 4. Main Title
+# 4. Main App
 st.header("📝 My Superb To-Do List")
-st.write("Evaluate your laziness levels below.")
 
-# 5. Input Section (Columns for layout)
+# 5. Input Section
 col1, col2 = st.columns(2)
 
 with col1:
-    name = st.text_input("Name of task", placeholder="e.g. Conquer the world")
-    time_val = st.time_input("Time of task")
+    name = st.text_input("Name of task", placeholder="e.g. Study for finals")
+    # Added Start and Finish times
+    start_time = st.time_input("Start time")
+    end_time = st.time_input("Finish time")
 
 with col2:
     priority = st.select_slider("Priority", options=["Low", "Medium", "High"])
     motivation = st.select_slider("Motivation Level", options=["Sloth", "Human", "Robot"])
 
-# 6. Add Task Button
+# 6. Logic to Add Task
 if st.button("Add Task"):
     if name:
-        # Save task data + motivation level to memory
+        # Check if end time is after start time (optional but helpful)
+        if end_time <= start_time:
+            st.warning("Note: The finish time is before or equal to the start time!")
+
         new_task = {
             "name": name,
             "priority": priority,
-            "time": time_val.strftime('%H:%M'),
+            "start": start_time.strftime('%H:%M'),
+            "end": end_time.strftime('%H:%M'),
             "motivation": motivation
         }
         st.session_state.task_list.append(new_task)
@@ -70,20 +74,18 @@ if st.button("Add Task"):
 
 st.divider()
 
-# 7. Display All Tasks
+# 7. Display List
 st.subheader("Your Task List")
 
-# FIXED: Check the strings here
 if not st.session_state.task_list:
     st.info("The list is empty. Are you being a Sloth?")
 else:
-    # Displaying tasks newest to oldest
     for task in reversed(st.session_state.task_list):
         st.markdown(f"""
             <div class="task-card">
                 <h4 style="margin:0;">{task['name']}</h4>
                 <p style="margin:5px 0 0 0;">
-                    ⏰ <b>Time:</b> {task['time']} | 
+                    ⏰ <b>Time:</b> {task['start']} – {task['end']} | 
                     🚩 <b>Priority:</b> {task['priority']} | 
                     ⚡ <b>Mode:</b> {task['motivation']}
                 </p>
