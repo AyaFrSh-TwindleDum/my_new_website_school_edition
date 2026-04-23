@@ -9,7 +9,7 @@ bg_color = "#c2c395"
 title_color = "#4C3D19"
 card_color = "#fdfae1"
 
-# 2. CSS
+# 2. CSS Styling
 st.markdown(
     f"""
     <style>
@@ -29,10 +29,16 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# 3. Sidebar
+# 3. Sidebar (Photo and Stats)
 with st.sidebar:
+    st.header("⚙️ Settings")
+    # THE RESTORED PHOTO
+    st.image("https://cdn-icons-png.flaticon.com/512/4345/4345573.png", width=100)
+    
+    st.write("---")
     st.header("📊 Task Stats")
     st.metric("Tasks to do", len(st.session_state.task_list))
+    
     if st.button("🗑️ Clear All Tasks"):
         st.session_state.task_list = []
         st.rerun()
@@ -64,14 +70,11 @@ if st.button("Add Task"):
         }
         st.session_state.task_list.append(new_task)
         
-        # --- SORTING LOGIC ---
-        # We map the text to numbers so Python can sort them
+        # Sort by priority: High (1), Medium (2), Low (3)
         priority_map = {"High": 1, "Medium": 2, "Low": 3}
-        
-        # Sort the list based on the mapped number
         st.session_state.task_list.sort(key=lambda x: priority_map[x["priority"]])
         
-        st.success(f"Task '{name}' added and sorted by priority!")
+        st.success(f"Task '{name}' added!")
     else:
         st.error("Please enter a task name first!")
 
@@ -81,19 +84,18 @@ st.divider()
 st.subheader("Priority Queue")
 
 if not st.session_state.task_list:
-    st.info("The list is empty. Are you being a Sloth?")
+    st.info("The list is empty. Time for a break?")
 else:
     for task in st.session_state.task_list:
-        # Change border color based on priority
-        border_color = "#D9534F" if task['priority'] == "High" else "#F0AD4E" if task['priority'] == "Medium" else title_color
-        
+        # Dynamic border colors based on urgency
+        if task['priority'] == "High":
+            border_color = "#D9534F" # Red
+        elif task['priority'] == "Medium":
+            border_color = "#F0AD4E" # Orange
+        else:
+            border_color = title_color # Original Brown
+            
         st.markdown(f"""
             <div class="task-card" style="border-left-color: {border_color};">
                 <h4 style="margin:0;">{task['name']}</h4>
-                <p style="margin:5px 0 0 0;">
-                    ⏰ <b>Time:</b> {task['start']} – {task['end']} | 
-                    🚩 <b>Priority:</b> {task['priority']} | 
-                    ⚡ <b>Mode:</b> {task['motivation']}
-                </p>
-            </div>
-        """, unsafe_allow_html=True)
+                <p style="margin:5px 0 0
