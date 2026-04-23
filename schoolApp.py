@@ -1,8 +1,10 @@
 import streamlit as st
 
-# 1. Initialize Memory
+# 1. Initialize Memory (Session State)
 if 'task_list' not in st.session_state:
     st.session_state.task_list = []
+if 'done_count' not in st.session_state:
+    st.session_state.done_count = 0
 
 # Colors
 bg_color = "#c2c395"
@@ -36,20 +38,22 @@ with st.sidebar:
     
     st.write("---")
     st.header("📊 Task Stats")
-    st.metric("Tasks to do", len(st.session_state.task_list))
+    st.metric("Tasks Left", len(st.session_state.task_list))
+    st.metric("Tasks Done", st.session_state.done_count)
     
-    if st.button("🗑️ Clear All Tasks"):
+    if st.button("🗑️ Clear Everything"):
         st.session_state.task_list = []
+        st.session_state.done_count = 0
         st.rerun()
 
 # 4. Main App
-st.header("📝 Sorted To-Do List")
+st.header("📝 My School Task Manager")
 
 # 5. Input Section
 col1, col2 = st.columns(2)
 
 with col1:
-    name = st.text_input("Name of task", placeholder="e.g. Study for finals")
+    name = st.text_input("Name of task", placeholder="e.g. Math Homework")
     start_time = st.time_input("Start time")
     end_time = st.time_input("Finish time")
 
@@ -69,8 +73,48 @@ if st.button("Add Task"):
         }
         st.session_state.task_list.append(new_task)
         
-        # Sort by priority: High (1), Medium (2), Low (3)
+        # Sort by priority
         priority_map = {"High": 1, "Medium": 2, "Low": 3}
         st.session_state.task_list.sort(key=lambda x: priority_map[x["priority"]])
         
-        st.success(f"Task '{name}' added
+        st.success(f"Task '{name}' added successfully!") # Fixed the cut-off string here
+    else:
+        st.error("Please enter a task name first!")
+
+st.divider()
+
+# 7. Display List
+st.subheader("Your Priority List")
+
+if not st.session_state.task_list:
+    st.info("No tasks left! Time for a break?")
+else:
+    # We use a copy of the list to iterate so we can delete items safely
+    for i, task in enumerate(st.session_state.task_list):
+        if task['priority'] == "High":
+            b_color = "#D9534F"
+        elif task['priority'] == "Medium":
+            b_color = "#F0AD4E"
+        else:
+            b_color = title_color
+            
+        # Create a container for the card and the button
+        st.markdown(
+            f"""
+            <div class="task-card" style="border-left-color: {b_color};">
+                <h4 style="margin:0;">{task['name']}</h4>
+                <p style="margin:5px 0 0 0;">
+                    ⏰ <b>Time:</b> {task['start']} – {task['end']} | 
+                    🚩 <b>Priority:</b> {task['priority']} | 
+                    ⚡ <b>Mode:</b> {task['motivation']}
+                </p>
+            </div>
+            """, 
+            unsafe_allow_html=True
+        )
+        
+        # Adding a "Mark Done" button for each task
+        if st.button(f"Mark Done: {task['name']}", key=f"done_{i}"):
+            st.session_state.task_list.pop(i) # Remove task from list
+            st.session_state.done_count += 1 # Add to finished count
+            st.rerun() # Refresh the page to update stats
