@@ -1,29 +1,44 @@
 import streamlit as st
 
-# 1. PAGE CONFIG - Sets the browser tab name and icon
+# 1. PAGE CONFIG
 st.set_page_config(
     page_title="School Task Manager", 
     page_icon="📝", 
     layout="centered"
 )
 
-# 2. Initialize Memory (Session State)
+# 2. Initialize Memory
 if 'task_list' not in st.session_state:
     st.session_state.task_list = []
 if 'done_count' not in st.session_state:
     st.session_state.done_count = 0
 
-# Colors
-bg_color = "#c2c395"
-title_color = "#4C3D19"
-card_color = "#fdfae1"
+# Color Palette Definitions
+main_bg = "#B0E0E6"      # Powder Blue
+sidebar_bg = "#87CEEB"   # Sky Blue
+title_color = "#C19A6B"  # Camel / Rocky Earth Tone
+card_color = "#F0F8FF"   # Alice Blue (very light blue for contrast)
 
 # 3. CSS Styling
 st.markdown(
     f"""
     <style>
-    .stApp {{ background-color: {bg_color}; }}
-    h1, h2, h3 {{ color: {title_color} !important; }}
+    /* Main Background */
+    .stApp {{
+        background-color: {main_bg};
+    }}
+    
+    /* Sidebar Background */
+    [data-testid="stSidebar"] {{
+        background-color: {sidebar_bg};
+    }}
+
+    /* Title and Header Colors (Camel/Rocky) */
+    h1, h2, h3, h4 {{
+        color: {title_color} !important;
+        font-family: 'Trebuchet MS', sans-serif;
+    }}
+
     .task-card {{
         background-color: {card_color};
         padding: 15px;
@@ -31,14 +46,14 @@ st.markdown(
         border-left: 8px solid {title_color};
         margin-bottom: 5px;
         color: #333;
-        box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+        box-shadow: 2px 2px 5px rgba(0,0,0,0.05);
     }}
     </style>
     """,
     unsafe_allow_html=True
 )
 
-# 4. Sidebar (Photo and Stats)
+# 4. Sidebar
 with st.sidebar:
     st.header("⚙️ Settings")
     st.image("https://cdn-icons-png.flaticon.com/512/4345/4345573.png", width=100)
@@ -72,7 +87,6 @@ with col2:
 # 7. Logic to Add, SORT, and FEEDBACK
 if st.button("Add Task"):
     if name:
-        # Create Task Object
         new_task = {
             "name": name,
             "priority": priority,
@@ -82,18 +96,15 @@ if st.button("Add Task"):
         }
         st.session_state.task_list.append(new_task)
         
-        # Sort by priority: High (1), Medium (2), Low (3)
         priority_map = {"High": 1, "Medium": 2, "Low": 3}
         st.session_state.task_list.sort(key=lambda x: priority_map[x["priority"]])
         
-        # --- YOUR LOGIC-BASED FEEDBACK ---
         if priority == "Low" and motivation == "Sloth":
             st.warning("Low priority and Sloth mode? This task is never happening, is it?")
         elif priority == "High":
             st.success("High priority! Let's get to work.")
         else:
             st.info("You've got this!")
-            
     else:
         st.error("Please enter a task name first!")
 
@@ -106,15 +117,13 @@ if not st.session_state.task_list:
     st.info("No tasks left! Time for a break?")
 else:
     for i, task in enumerate(st.session_state.task_list):
-        # Pick border color based on urgency
         if task['priority'] == "High":
             b_color = "#D9534F"
         elif task['priority'] == "Medium":
             b_color = "#F0AD4E"
         else:
-            b_color = title_color
+            b_color = title_color # Camel border for low priority
             
-        # Draw the card
         st.markdown(
             f"""
             <div class="task-card" style="border-left-color: {b_color};">
@@ -129,7 +138,6 @@ else:
             unsafe_allow_html=True
         )
         
-        # Finish button
         if st.button(f"Mark Done: {task['name']}", key=f"done_{i}"):
             st.session_state.task_list.pop(i)
             st.session_state.done_count += 1
