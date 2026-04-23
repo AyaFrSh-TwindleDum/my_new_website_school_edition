@@ -38,14 +38,13 @@ with st.sidebar:
         st.rerun()
 
 # 4. Main App
-st.header("📝 My Superb To-Do List")
+st.header("📝 Sorted To-Do List")
 
 # 5. Input Section
 col1, col2 = st.columns(2)
 
 with col1:
     name = st.text_input("Name of task", placeholder="e.g. Study for finals")
-    # Added Start and Finish times
     start_time = st.time_input("Start time")
     end_time = st.time_input("Finish time")
 
@@ -53,13 +52,9 @@ with col2:
     priority = st.select_slider("Priority", options=["Low", "Medium", "High"])
     motivation = st.select_slider("Motivation Level", options=["Sloth", "Human", "Robot"])
 
-# 6. Logic to Add Task
+# 6. Logic to Add and SORT Task
 if st.button("Add Task"):
     if name:
-        # Check if end time is after start time (optional but helpful)
-        if end_time <= start_time:
-            st.warning("Note: The finish time is before or equal to the start time!")
-
         new_task = {
             "name": name,
             "priority": priority,
@@ -68,21 +63,32 @@ if st.button("Add Task"):
             "motivation": motivation
         }
         st.session_state.task_list.append(new_task)
-        st.success(f"Task '{name}' added!")
+        
+        # --- SORTING LOGIC ---
+        # We map the text to numbers so Python can sort them
+        priority_map = {"High": 1, "Medium": 2, "Low": 3}
+        
+        # Sort the list based on the mapped number
+        st.session_state.task_list.sort(key=lambda x: priority_map[x["priority"]])
+        
+        st.success(f"Task '{name}' added and sorted by priority!")
     else:
         st.error("Please enter a task name first!")
 
 st.divider()
 
 # 7. Display List
-st.subheader("Your Task List")
+st.subheader("Priority Queue")
 
 if not st.session_state.task_list:
     st.info("The list is empty. Are you being a Sloth?")
 else:
-    for task in reversed(st.session_state.task_list):
+    for task in st.session_state.task_list:
+        # Change border color based on priority
+        border_color = "#D9534F" if task['priority'] == "High" else "#F0AD4E" if task['priority'] == "Medium" else title_color
+        
         st.markdown(f"""
-            <div class="task-card">
+            <div class="task-card" style="border-left-color: {border_color};">
                 <h4 style="margin:0;">{task['name']}</h4>
                 <p style="margin:5px 0 0 0;">
                     ⏰ <b>Time:</b> {task['start']} – {task['end']} | 
