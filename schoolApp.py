@@ -2,14 +2,14 @@ import streamlit as st
 import time
 import random
 
-# 1. PAGE CONFIG - "Appropriate Name"
+# 1. PAGE CONFIG - Sets the browser tab name
 st.set_page_config(
     page_title="School Task Manager", 
     page_icon="📝", 
     layout="centered"
 )
 
-# 2. Initialize Memory
+# 2. Initialize Memory (Session State)
 if 'task_list' not in st.session_state:
     st.session_state.task_list = []
 if 'done_count' not in st.session_state:
@@ -25,7 +25,7 @@ st.markdown(
     f"""
     <style>
     .stApp {{ background-color: {bg_color}; }}
-    [data-testid="stSidebar"] {{ background-color: #b5b68a; }} /* Slightly darker green for sidebar */
+    [data-testid="stSidebar"] {{ background-color: #b5b68a; }} 
     h1, h2, h3, h4 {{ color: {title_color} !important; font-family: 'Helvetica', sans-serif; }}
     .stMarkdown p, label {{ color: {title_color} !important; }}
     .task-card {{
@@ -41,24 +41,38 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# 4. Sidebar (Image, Timer, and Stats)
+# 4. Sidebar (Image, REAL Timer, and Stats)
 with st.sidebar:
     st.header("⚙️ Settings")
     st.image("https://cdn-icons-png.flaticon.com/512/4345/4345573.png", width=100)
     
     st.write("---")
-    # FEATURE: Pomodoro in action
+    
+    # CORRECTED REAL POMODORO TIMER
     st.subheader("Pomodoro in action")
     timer_choice = st.radio("Focus Mode:", ["Study (25m)", "Break (5m)"])
+    
     if st.button("Start Timer"):
-        duration = 25 * 60 if "Study" in timer_choice else 5 * 60
-        bar = st.progress(0)
-        # For demo purposes, we do seconds. Change to 'duration' for real minutes.
-        for i in range(10): 
-            time.sleep(1)
-            bar.progress((i + 1) / 10)
+        # Calculate real seconds
+        mins = 25 if "Study" in timer_choice else 5
+        duration_seconds = mins * 60 
+        
+        progress_bar = st.progress(0)
+        countdown_text = st.empty()
+        
+        # The loop that runs for the full duration
+        for remaining in range(duration_seconds, -1, -1):
+            m, s = divmod(remaining, 60)
+            countdown_text.markdown(f"### ⏳ {m:02d}:{s:02d}")
+            
+            # Update progress bar
+            progress_pct = (duration_seconds - remaining) / duration_seconds
+            progress_bar.progress(progress_pct)
+            
+            time.sleep(1) # This waits 1 actual second
+            
         st.balloons()
-        st.success("Session Done!")
+        st.success("Time's up! Great session.")
 
     st.write("---")
     st.metric("Tasks Left", len(st.session_state.task_list))
@@ -76,7 +90,8 @@ roasts = [
     "Your to-do list looks like a 'maybe-someday' list. Get moving!",
     "Sloth mode detected. Initiating virtual coffee splash... ☕",
     "If you spent as much time working as you did changing colors, you'd be done!",
-    "A journey of a thousand miles begins with closing this tab and starting your essay."
+    "A journey of a thousand miles begins with closing this tab and starting your essay.",
+    "Is that a task list or a bedtime story? Wake up!"
 ]
 if st.button("Roast My Productivity"):
     st.toast(random.choice(roasts), icon="🔥")
@@ -104,7 +119,7 @@ if st.button("Add Task"):
         }
         st.session_state.task_list.append(new_task)
         
-        # Sort by Priority
+        # Sort by Priority (High to Low)
         p_map = {"High": 1, "Medium": 2, "Low": 3}
         st.session_state.task_list.sort(key=lambda x: p_map[x["priority"]])
         
@@ -124,6 +139,7 @@ st.divider()
 if st.session_state.task_list:
     st.subheader("📊 Your Energy Schedule")
     m_map = {"Sloth": 1, "Human": 5, "Robot": 10}
+    # Create the chart based on motivation scores
     chart_data = {t['name']: m_map[t['motivation']] for t in st.session_state.task_list}
     st.bar_chart(chart_data, color="#4C3D19")
 
@@ -133,13 +149,13 @@ if not st.session_state.task_list:
     st.info("No tasks left! Time for a nap?")
 else:
     for i, task in enumerate(st.session_state.task_list):
-        # Original border color logic
+        # Card border color logic
         if task['priority'] == "High":
-            b_col = "#D9534F"
+            b_col = "#D9534F" # Red
         elif task['priority'] == "Medium":
-            b_col = "#F0AD4E"
+            b_col = "#F0AD4E" # Orange
         else:
-            b_col = title_color
+            b_col = title_color # Brown
             
         st.markdown(
             f"""
@@ -154,6 +170,7 @@ else:
             unsafe_allow_html=True
         )
         
+        # The unique key=f"done_{i}" is very important here!
         if st.button(f"Mark Done: {task['name']}", key=f"done_{i}"):
             st.session_state.task_list.pop(i)
             st.session_state.done_count += 1
