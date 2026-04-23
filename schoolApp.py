@@ -13,40 +13,46 @@ if 'task_list' not in st.session_state:
 if 'done_count' not in st.session_state:
     st.session_state.done_count = 0
 
-# Color Palette Definitions
-main_bg = "#B0E0E6"      # Powder Blue
-sidebar_bg = "#87CEEB"   # Sky Blue
-title_color = "#C19A6B"  # Camel / Rocky Earth Tone
-card_color = "#F0F8FF"   # Alice Blue (very light blue for contrast)
+# Updated Color Palette
+sidebar_bg = "#B0E0E6"   # Powder Blue
+main_bg = "#C19A6B"      # Camel
+title_rocky = "#708090"  # Rocky (Slate Gray)
+card_color = "#FDF5E6"   # Old Lace (Warm off-white)
 
 # 3. CSS Styling
 st.markdown(
     f"""
     <style>
-    /* Main Background */
+    /* Main Background (Camel) */
     .stApp {{
         background-color: {main_bg};
     }}
     
-    /* Sidebar Background */
+    /* Sidebar Background (Powder Blue) */
     [data-testid="stSidebar"] {{
         background-color: {sidebar_bg};
     }}
 
-    /* Title and Header Colors (Camel/Rocky) */
+    /* Title and Header Colors (Rocky) */
     h1, h2, h3, h4 {{
-        color: {title_color} !important;
-        font-family: 'Trebuchet MS', sans-serif;
+        color: {title_rocky} !important;
+        font-family: 'Georgia', serif;
+        font-weight: bold;
+    }}
+
+    /* Label and regular text colors for readability on Camel */
+    .stMarkdown p, label, .stHeader {{
+        color: #3E2723 !important; /* Dark Chocolate Brown */
     }}
 
     .task-card {{
         background-color: {card_color};
         padding: 15px;
         border-radius: 10px;
-        border-left: 8px solid {title_color};
+        border-left: 8px solid {title_rocky};
         margin-bottom: 5px;
         color: #333;
-        box-shadow: 2px 2px 5px rgba(0,0,0,0.05);
+        box-shadow: 3px 3px 10px rgba(0,0,0,0.15);
     }}
     </style>
     """,
@@ -70,13 +76,13 @@ with st.sidebar:
 
 # 5. Main App Header
 st.header("📝 My School Task Manager")
-st.write("My superb website will now evaluate your laziness.")
+st.write("A solid, rocky foundation for your productivity.")
 
 # 6. Input Section
 col1, col2 = st.columns(2)
 
 with col1:
-    name = st.text_input("Name of task", placeholder="e.g. Math Homework")
+    name = st.text_input("Name of task", placeholder="e.g. History Essay")
     start_time = st.time_input("Start time")
     end_time = st.time_input("Finish time")
 
@@ -114,20 +120,21 @@ st.divider()
 st.subheader("Your Priority List")
 
 if not st.session_state.task_list:
-    st.info("No tasks left! Time for a break?")
+    st.info("Your list is currently empty.")
 else:
     for i, task in enumerate(st.session_state.task_list):
+        # Card border colors
         if task['priority'] == "High":
-            b_color = "#D9534F"
+            b_color = "#D9534F" # Bold Red
         elif task['priority'] == "Medium":
-            b_color = "#F0AD4E"
+            b_color = "#F0AD4E" # Warning Orange
         else:
-            b_color = title_color # Camel border for low priority
+            b_color = title_rocky # Rocky Gray
             
         st.markdown(
             f"""
             <div class="task-card" style="border-left-color: {b_color};">
-                <h4 style="margin:0;">{task['name']}</h4>
+                <h4 style="margin:0; color: {title_rocky};">{task['name']}</h4>
                 <p style="margin:5px 0 0 0;">
                     ⏰ <b>Time:</b> {task['start']} – {task['end']} | 
                     🚩 <b>Priority:</b> {task['priority']} | 
