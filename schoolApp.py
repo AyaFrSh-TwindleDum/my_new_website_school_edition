@@ -75,52 +75,21 @@ with st.sidebar:
         st.session_state.done_count = 0
         st.rerun()
 
-# 5. Main Header & THE NUCLEAR ROAST ENGINE
+# 5. Main Header & ROAST ENGINE
 st.header("📝 My School Task Manager")
 
 def get_nuclear_roast():
     num_tasks = len(st.session_state.task_list)
-    
-    # 1. The Ghost Town (0 Tasks)
     if num_tasks == 0:
-        return random.choice([
-            "Your to-do list is as empty as a stadium for a mime convention.",
-            "Zero tasks? I didn't realize we were using this app as a digital paperweight.",
-            "You’re outperforming a rock in a contest of 'Doing Absolutely Nothing'."
-        ])
-    
-    # 2. The Casual (1-2 Tasks)
+        return "Your to-do list is as empty as a stadium for a mime convention."
     elif 1 <= num_tasks <= 2:
-        return random.choice([
-            "One task? Oh, don't overexert yourself. We wouldn't want you to break a sweat sitting down.",
-            "Two tasks. You're basically one step away from running a Fortune 500 company. In your dreams.",
-            "Having only two tasks is like bringing a spoon to a knife fight. Adorable, but useless."
-        ])
-    
-    # 3. The Sweet Spot (3-5 Tasks)
+        return "One task? Oh, don't overexert yourself. We wouldn't want you to break a sweat."
     elif 3 <= num_tasks <= 5:
-        return random.choice([
-            "A solid list. Half of which you'll probably 'Reschedule' until 2029.",
-            "This looks legitimate, but we both know 'Check Email' is only on here so you can feel the rush of deleting it.",
-            "You have just enough tasks to feel busy, but just few enough to spend three hours on TikTok first."
-        ])
-    
-    # 4. The Danger Zone (6-10 Tasks)
+        return "A solid list. Half of which you'll probably 'Reschedule' until 2029."
     elif 6 <= num_tasks <= 10:
-        return random.choice([
-            "Six tasks? This list is starting to look like your 'New Year’s Resolutions'—doomed.",
-            "You’re collecting tasks like they’re limited-edition sneakers. Are you going to wear them or just let them sit in the box?",
-            "At this level, you’ve officially transitioned from 'Student' to 'Professional Procrastination Architect'."
-        ])
-    
-    # 5. The Nuclear Option (11+ Tasks)
+        return "Six tasks? This list is starting to look like your 'New Year’s Resolutions'—doomed."
     else:
-        return random.choice([
-            "Eleven tasks? You don't need a list, you need an intervention and a team of life coaches.",
-            "This isn't a task list; it's a historical record of everything you’ve been avoiding since 8th grade.",
-            "If your brain was a computer, the fans would be screaming right now. Give up.",
-            "You have so many tasks that 'Start the Tasks' should be its own task. Which you'd ignore."
-        ])
+        return "This isn't a task list; it's a historical record of everything you’ve been avoiding."
 
 if st.button("🔥 Roast My Productivity"):
     st.toast(get_nuclear_roast(), icon="🔥")
@@ -128,7 +97,7 @@ if st.button("🔥 Roast My Productivity"):
 # 6. Input Section
 col1, col2 = st.columns(2)
 with col1:
-    name = st.text_input("Name of task", placeholder="e.g. History Paper")
+    name = st.text_input("Name of task", placeholder="e.g. Math Homework")
     start_time = st.time_input("Start time")
     end_time = st.time_input("Finish time")
 
@@ -136,7 +105,7 @@ with col2:
     priority = st.select_slider("Priority", options=["Low", "Medium", "High"])
     motivation = st.select_slider("Motivation Level", options=["Sloth", "Human", "Robot"])
 
-# 7. Add Task Logic with Sloth/Robot Special Roasts
+# 7. Add Task Logic with CUSTOM Sloth Feedback
 if st.button("Add Task"):
     if name:
         new_task = {"name": name, "priority": priority, "start": start_time, "end": end_time, "motivation": motivation}
@@ -144,8 +113,10 @@ if st.button("Add Task"):
         p_map = {"High": 1, "Medium": 2, "Low": 3}
         st.session_state.task_list.sort(key=lambda x: p_map[x["priority"]])
         
-        # SPECIAL ROAST LOGIC
-        if priority == "High" and motivation == "Sloth":
+        # --- UPDATED FEEDBACK LOGIC ---
+        if priority == "Low" and motivation == "Sloth":
+            st.warning("Low priority and Sloth mode? This task is never happening, is it?")
+        elif priority == "High" and motivation == "Sloth":
             st.warning("Putting a High Priority task in Sloth Mode is like putting a Ferrari engine in a lawnmower. Pointless.")
         elif priority == "Low" and motivation == "Robot":
             st.info("Why use 100% of your brain power for a Low Priority task? Get a grip.")
@@ -161,7 +132,7 @@ st.divider()
 # 8. Task Display List
 st.subheader("Your Priority List")
 if not st.session_state.task_list:
-    st.info("No tasks left! Go outside and see the sun (the big yellow thing).")
+    st.info("No tasks left! Go outside and see the sun.")
 else:
     for i, task in enumerate(st.session_state.task_list):
         b_col = "#D9534F" if task['priority'] == "High" else "#F0AD4E" if task['priority'] == "Medium" else title_color 
