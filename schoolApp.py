@@ -1,5 +1,5 @@
 import streamlit as st
-# .streamlit/config.toml.
+# streamlit/config.toml.
 [theme]
 backgroundColor = "#c2c395"
 st.write("my superb website")
